@@ -1,0 +1,80 @@
+#include <SoftwareSerial.h> //serial communication on other digital pin of arduino
+SoftwareSerial gsm(2,3); //GSM pins
+#define trigPin1 7 //sensor output pin in arduino
+#define echoPin1 6 //sensor input pin in arduino
+long duration, distance, RightSensor,dis;
+int outputValue = 0;
+void setup() //put your setup code here,to turn once
+{
+gsm.begin(9600); //turn on serial port
+Serial.begin (9600);
+pinMode(trigPin1, OUTPUT);
+pinMode(echoPin1, INPUT);
+} 
+void loop() {
+SonarSensor(trigPin1, echoPin1);
+RightSensor = distance;
+dis=RightSensor ;
+if(dis>=23)
+{
+  dis=23;
+}
+if(dis<=2)
+{
+  dis=2;
+}
+outputValue = map(dis, 2, 23, 100, 0);
+Serial.println(outputValue);
+delay(200);
+ if(outputValue>80)
+ {
+  Serial.println("SMS Sent");
+ SendMessage();
+ }
+}
+ 
+void SonarSensor(int trigPin,int echoPin)
+{
+digitalWrite(trigPin, LOW);
+delayMicroseconds(2);
+digitalWrite(trigPin, HIGH);
+delayMicroseconds(10);
+digitalWrite(trigPin, LOW);
+duration = pulseIn(echoPin, HIGH);
+distance = (duration/2) / 29.1;
+ 
+}
+ void SendMessage()
+{
+
+  gsm.print("AT\r\n"); delay(1000); 
+  gsm.print("AT+CMGF=1\r\n");delay(1000);  
+  gsm.print("AT+CMGS=\"9500752213\"\r\n");delay(1000); //truck driver mobile number
+  gsm.println("BIN NO:1");  
+  gsm.println("DUST BIN..80% Filled - 20% Left..");
+  gsm.println("http://maps.google.com/?q=13.125767,80.117407");delay(1000); 
+  gsm.print((char)26);delay(1000); 
+  Serial.println("SMS Sent!");  //used to send a message
+  delay(1000); delay(1000); delay(1000); delay(1000);     
+
+  gsm.print("AT\r\n"); delay(1000); 
+  gsm.print("AT+CMGF=1\r\n");delay(1000);  
+  gsm.print("AT+CMGS=\"\"\r\n");delay(1000);  
+  gsm.print("AT+CMGS=\"8680970851\"\r\n");delay(1000);  //municipality office number
+  gsm.println("DUST BIN..80% Filled - 20% Left.."); //level of garbage
+  gsm.println("http://maps.google.com/?q=13.125767,80.117407");delay(1000); //google map
+  gsm.print((char)26);delay(1000);  
+  Serial.println("SMS Sent!");   //used to send a message
+  delay(1000); delay(1000); delay(1000); delay(1000); 
+
+  gsm.print("AT\r\n"); delay(1000); 
+  gsm.print("AT+CMGF=1\r\n");delay(1000);  
+  gsm.print("AT+CMGS=\"\"\r\n");delay(1000);  
+  gsm.print("AT+CMGS=\"8680970851\"\r\n");delay(1000);  //local ward member number
+  gsm.println("DUST BIN..80% Filled - 20% Left.."); //level of garbage
+  gsm.println("http://maps.google.com/?q=13.125767,80.117407");delay(1000); //google map
+  gsm.print((char)26);delay(1000);  
+  Serial.println("SMS Sent!");   //used to send a message
+  delay(1000); delay(1000); delay(1000); delay(1000); 
+  do {} while (1);
+}
